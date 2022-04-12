@@ -1,0 +1,192 @@
+MODULE main
+
+VAR
+    floor : {0,1,2,3};
+    buttons : array 0..3 of boolean;
+    doors : array 0..3 of boolean;
+    -- base_req : boolean;
+    req1 : -1..3; --cache elevator button requests
+    req2 : -1..3; 
+    timer: 0..2;
+
+ASSIGN
+    init(floor) := 0;
+    init(doors[0]) := FALSE;
+    init(doors[1]) := FALSE;
+    init(doors[2]) := FALSE;
+    init(doors[3]) := FALSE;
+    -- init(base_req) := FALSE;
+    init(req1) := -1;
+    init(req2) := -1;
+    init(timer) := 0;
+
+DEFINE
+    all_inactive := buttons[0]=FALSE & buttons[1]=FALSE & buttons[2]=FALSE & buttons[3]=FALSE;
+    req1_satisfied := ((req1 = 0 & doors[0]=TRUE) | (req1 = 1 & doors[1]=TRUE) | (req1 = 2 & doors[2]=TRUE) | (req1 = 3 & doors[3]=TRUE));
+
+ASSIGN
+    --randomly press buttons 
+    next(buttons[0]) := {TRUE, FALSE};
+    next(buttons[1]) := {TRUE, FALSE};
+    next(buttons[2]) := {TRUE, FALSE};
+    next(buttons[3]) := {TRUE, FALSE};
+
+    --if timer hits 2, then we need to inject a floor 0 when we can
+    next(timer) :=
+        case
+            req1=0 | req2=0 : 0;
+            req1!=0 & req2!=0 & timer=0 : 1;
+            req1!=0 & req2!=0 & timer=1 : 2;
+            TRUE : timer;
+        esac;
+
+    --figure out which floor to serve next, can only move to adjacent floor in one step
+    --door is never open unless elevator is at floor
+
+    --compute elevator request values
+    -- next(base_req) := 
+    --     case
+            
+    --     esac;
+    next(req1) :=
+        case
+            --ALWAYS TAKE BUTTON 3. MAKE SURE REQ2 CAN NEVER HAVE BUTTON 3
+            --if we do not have a job (this means that req2 should not have a job...), take the next available
+            req1=-1 & req2=-1 & (buttons[3]=TRUE) : 3;
+            req1=-1 & req2=-1 & (buttons[0]=TRUE) : 0;
+            req1=-1 & req2=-1 & (buttons[1]=TRUE) : 1;
+            req1=-1 & req2=-1 & (buttons[2]=TRUE) : 2;
+            --if req1 is satisifed (door is open on the floor that it requested), then we take req2's job if it has one
+            (req1_satisfied) & req2!=-1 : req2;
+            --if we have a job but its complete and req2 does not have a job, then set to next button call
+
+            req1_satisfied & req2=-1 & (buttons[3]=TRUE) : 3;
+            req1_satisfied & req2=-1 & (buttons[0]=TRUE) : 0;
+            req1_satisfied & req2=-1 & (buttons[1]=TRUE) : 1;
+            req1_satisfied & req2=-1 & (buttons[2]=TRUE) : 2;
+            --if job complete, req2 no job, and no buttons pressed, -1
+            req1_satisfied & req2=-1 & all_inactive : -1;
+            --if no job and req2 has a job, this must mean that it is for floor 0
+            req1=-1 & req2=0 : 0;
+            TRUE: req1;
+        esac;
+    
+    next(req2) :=
+        case
+            --if timer =2 and req!=-1, inject floor 0 
+            timer=2 & (req2=-1 | req1_satisfied) & req1!=-1 & req1!=0 & req2!=0 &buttons[0]=FALSE: 0;
+            --wont know if req1 took our job until next state. need to figure out now (or could just let it happen in next state...)
+            --if req1_satisfied, then it will take our job
+            --if we know req1 will take our job and no open requests, clear request
+            req1_satisfied & (all_inactive | (req2!=-1 & ((buttons[0]=TRUE & req2=0) | (buttons[1]=TRUE & req2=1) | (buttons[2]=TRUE & req2=2) | (buttons[3]=TRUE)))) : -1; 
+            --if we have a job and req1 is taking it, take the next available one that isnt the one that req1 took.
+            (req1_satisfied & req2!=-1 & req2!=0) & (buttons[0]=TRUE)  : 0;
+            (req1_satisfied & req2!=-1 & req2!=1) & (buttons[1]=TRUE)  : 1;
+            (req1_satisfied & req2!=-1 & req2!=2) & (buttons[2]=TRUE)  : 2;
+            -- (req1_satisfied & req2!=-1 & req3!=3) & (buttons[3]=TRUE)  : 3;
+            --if we don't have a job and req1 also does not, take the next available one. we must take the one that req1 did not take, so it will be the second button that is pressed (if there is one). as such, we can never take button[3] if req1 does not already have a job.
+
+            (req2=-1 & req1=-1) & (buttons[0]=TRUE & buttons[3]=TRUE) : 0;
+            (req2=-1 & req1=-1) & (buttons[1]=TRUE & (buttons[3]=TRUE| buttons[0]=TRUE)) : 1;
+            (req2=-1 & req1=-1) & (buttons[2]=TRUE & (buttons[3]=TRUE | buttons[1]=TRUE | buttons[0]=TRUE )) : 2;
+
+            --if we do not have a job, req1 does have a job, and req1 has not finished its job, then we take whatever button that isn't req1's job
+            (req2=-1 & req1!=-1 & !req1_satisfied & req1 !=0) & (buttons[0]=TRUE)  : 0;
+            (req2=-1 & req1!=-1 & !req1_satisfied & req1 !=1) & (buttons[1]=TRUE)  : 1;
+            (req2=-1 & req1!=-1 & !req1_satisfied & req1 !=2) & (buttons[2]=TRUE)  : 2;
+            -- (req2=-1 & req1!=-1 & !req1_satisfied & req1 !=3) & (buttons[3]=TRUE)  : 3;
+
+            TRUE: req2;
+        esac;
+
+    -- next(base_req) :=
+    --     case 
+    --         --if there is ever a lack of requests, go to the bottom floor
+    --         req1=-1 & req2=-1: TRUE;
+    --         --if we get to the bottom floor, we must set to false so as to not to get stuck in the bottom floor
+    --         floor=0: FALSE;
+    --         TRUE: base_req;
+    --     esac;
+
+    next(doors[0]) :=
+        case
+            --close door if it was true in last step and the next req1 is not the same floor. for example, if they kept requesting floor 0, we would want to just keep the door open -> this only works if req1 is the only request being served!
+            doors[0]=TRUE & req1!=0: FALSE;
+            --open door if on floor n and requested (so we guarantee we stay on floor 0)
+            doors[0]=FALSE & floor=0 & req1=0 : TRUE;
+            --open door for next step (adjacent floors only)
+            floor=1 & doors[1]=FALSE & req1=0 : TRUE;
+            TRUE : doors[0];
+        esac;
+
+    next(doors[1]) :=
+        case
+            --close door if it was true in last step
+            doors[1]=TRUE & req1!=1: FALSE;
+            --open door if on floor n and requested (so we guarantee we stay on floor 1)
+            doors[1]=FALSE & floor=1 & req1=1 : TRUE;
+            --open door for next step (adjacent floors only)
+            ((floor=2 & doors[2]=FALSE) | (floor=0 & doors[0]=FALSE)) & req1=1 : TRUE;
+            TRUE : doors[1];
+        esac;
+
+    next(doors[2]) :=
+        case
+            --close door if it was true in last step
+            doors[2]=TRUE & req1!=2 : FALSE;
+            --open door if on floor n and requested (so we guarantee we stay on floor 1)
+            doors[2]=FALSE & floor=2 & req1=2 : TRUE;
+            --open door for next step (adjacent floors only)
+            ((floor=3 & doors[3]=FALSE)| (floor=1 & doors[1]=FALSE)) & req1=2 : TRUE;
+            TRUE : doors[2];
+        esac;
+
+    next(doors[3]) :=
+        case
+            --close door if it was true in last step
+            doors[3]=TRUE & req1!=3 : FALSE;
+            --open door if on floor n and requested (so we guarantee we stay on floor 1)
+            doors[3]=FALSE & floor=3 & req1=3 : TRUE;
+            --open door for next step (adjacent floors only). since a door will be open for a minimum two steps (req1 does not change until the step after it gets to its destination), we need to wait until the door closes to move on
+            (floor=2 & doors[2]=FALSE) & req1=3 : TRUE;
+            TRUE : doors[3];
+        esac;
+
+    next(floor) :=
+        case
+            --if top floor has been requested, we must go there. ensure that req1 always has 3 if it exists.
+
+            --if door is open or req1 is floor, stay on floor
+            doors[floor]=TRUE | floor=req1: floor;
+            -- go up
+            floor=0 & (req1=1 | req1=2 | req1=3) : 1;
+            floor=1 & (req1=2 | req1=3) : 2;
+            floor=2 & (req1=3) : 3;
+            -- go down
+            floor=1 & (req1=0): 0;
+            floor=2 & (req1=0 | req1=1) : 1;
+            floor=3 & (req1=0 | req1=1 | req1=2) : 2;
+            TRUE: floor;
+        esac;
+
+-- safe doors. basically assertions/sanity checks
+LTLSPEC G (doors[0]=TRUE -> (floor=0 & doors[1]=FALSE & doors[2]=FALSE & doors[3]=FALSE))
+LTLSPEC G (doors[1]=TRUE -> (floor=1 & doors[0]=FALSE & doors[2]=FALSE & doors[3]=FALSE))
+LTLSPEC G (doors[2]=TRUE -> (floor=2 & doors[0]=FALSE & doors[1]=FALSE & doors[3]=FALSE))
+LTLSPEC G (doors[3]=TRUE -> (floor=3 & doors[0]=FALSE & doors[1]=FALSE & doors[2]=FALSE))
+-- no duplicate requests. another sanity check. needed for door assumption (e.g., a door always be closed on the next step)
+-- LTLSPEC G (req1=-1 | req1!=req2)
+--always eventually ground floor
+LTLSPEC G (F floor=0)
+--requested floor for req eventually served
+-- LTLSPEC G (req1!=-1 -> (F (floor=req1 & doors[req1]=TRUE)))
+-- LTLSPEC G (req2!=-1 -> (F (req1=req2 & floor=req2 & doors[req2]=TRUE)))
+LTLSPEC G(((req1=0 | req2=0) -> F(doors[0] = TRUE)) & ((req1=1 | req2=1) -> F(doors[1] = TRUE)) & ((req1=2 | req2=2) -> F(doors[2] = TRUE)) & ((req1=3 | req2=3) -> F(doors[3] = TRUE)))
+--always serve top floor first
+LTLSPEC G ((req1=3 | req2=3) -> ((floor=0 & doors[0]=FALSE) -> X floor=1) & ((floor=1 & doors[1]=FALSE) -> X floor=2) & ((floor=2 & doors[2]=FALSE) -> X floor=3) & (floor=3 -> ((X doors[3]=TRUE) | doors[3]=TRUE)))
+
+-- FAIRNESS
+--     running
+
+
+

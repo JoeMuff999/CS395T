@@ -1,0 +1,197 @@
+Sample path (starting from s2). Another path is below this one starting from s1.
+
+NuSMV > show_traces -v
+    <!-- ################### Trace number: 7 ################### -->
+Trace Description: Simulation Trace 
+Trace Type: Simulation 
+  -> State: 7.1 <-
+    state = s2
+  -> State: 7.2 <-
+    state = s4
+  -> State: 7.3 <-
+    state = s5
+  -> State: 7.4 <-
+    state = s4
+  -> State: 7.5 <-
+    state = s2
+  -> State: 7.6 <-
+    state = s4
+  -> State: 7.7 <-
+    state = s2
+  -> State: 7.8 <-
+    state = s4
+  -> State: 7.9 <-
+    state = s2
+  -> State: 7.10 <-
+    state = s4
+  -> State: 7.11 <-
+    state = s2
+  -> State: 7.12 <-
+    state = s4
+  -> State: 7.13 <-
+    state = s5
+  -> State: 7.14 <-
+    state = s4
+  -> State: 7.15 <-
+    state = s2
+  -> State: 7.16 <-
+    state = s4
+  -> State: 7.17 <-
+    state = s2
+  -> State: 7.18 <-
+    state = s4
+  -> State: 7.19 <-
+    state = s2
+  -> State: 7.20 <-
+    state = s4
+  -> State: 7.21 <-
+    state = s3
+  -> State: 7.22 <-
+    state = s4
+  -> State: 7.23 <-
+    state = s2
+  -> State: 7.24 <-
+    state = s4
+  -> State: 7.25 <-
+    state = s5
+  -> State: 7.26 <-
+    state = s4
+  -> State: 7.27 <-
+    state = s3
+  -> State: 7.28 <-
+    state = s4
+  -> State: 7.29 <-
+    state = s2
+  -> State: 7.30 <-
+    state = s4
+  -> State: 7.31 <-
+    state = s5
+  -> State: 7.32 <-
+    state = s5
+  -> State: 7.33 <-
+    state = s4
+  -> State: 7.34 <-
+    state = s2
+  -> State: 7.35 <-
+    state = s4
+  -> State: 7.36 <-
+    state = s2
+  -> State: 7.37 <-
+    state = s4
+  -> State: 7.38 <-
+    state = s2
+  -> State: 7.39 <-
+    state = s4
+  -> State: 7.40 <-
+    state = s5
+  -> State: 7.41 <-
+    state = s4
+  -> State: 7.42 <-
+    state = s5
+  -> State: 7.43 <-
+    state = s4
+  -> State: 7.44 <-
+    state = s2
+  -> State: 7.45 <-
+    state = s4
+  -> State: 7.46 <-
+    state = s2
+  -> State: 7.47 <-
+    state = s4
+  -> State: 7.48 <-
+    state = s2
+  -> State: 7.49 <-
+    state = s4
+  -> State: 7.50 <-
+    state = s3
+  -> State: 7.51 <-
+    state = s4
+  -> State: 7.52 <-
+    state = s2
+  -> State: 7.53 <-
+    state = s4
+  -> State: 7.54 <-
+    state = s2
+  -> State: 7.55 <-
+    state = s4
+  -> State: 7.56 <-
+    state = s3
+  -> State: 7.57 <-
+    state = s4
+  -> State: 7.58 <-
+    state = s5
+  -> State: 7.59 <-
+    state = s4
+  -> State: 7.60 <-
+    state = s2
+  -> State: 7.61 <-
+    state = s4
+  -> State: 7.62 <-
+    state = s3
+  -> State: 7.63 <-
+    state = s4
+  -> State: 7.64 <-
+    state = s2
+  -> State: 7.65 <-
+    state = s4
+  -> State: 7.66 <-
+    state = s2
+  -> State: 7.67 <-
+    state = s4
+  -> State: 7.68 <-
+    state = s3
+  -> State: 7.69 <-
+    state = s4
+  -> State: 7.70 <-
+    state = s3
+  -> State: 7.71 <-
+    state = s4
+
+Another sample path (starting from s1)
+
+NuSMV > show_traces -v
+    <!-- ################### Trace number: 8 ################### -->
+Trace Description: Simulation Trace 
+Trace Type: Simulation 
+  -> State: 8.1 <-
+    state = s1
+  -> State: 8.2 <-
+    state = s3
+  -> State: 8.3 <-
+    state = s4
+  -> State: 8.4 <-
+    state = s3
+  -> State: 8.5 <-
+    state = s4
+  -> State: 8.6 <-
+    state = s2
+  -> State: 8.7 <-
+    state = s4
+  -> State: 8.8 <-
+    state = s5
+  -> State: 8.9 <-
+    state = s5
+  -> State: 8.10 <-
+    state = s5
+  -> State: 8.11 <-
+    state = s5
+  -> State: 8.12 <-
+    state = s4
+  -> State: 8.13 <-
+    state = s2
+  -> State: 8.14 <-
+    state = s4
+  -> State: 8.15 <-
+    state = s2
+  -> State: 8.16 <-
+    state = s4
+  -> State: 8.17 <-
+    state = s3
+  -> State: 8.18 <-
+    state = s4
+  -> State: 8.19 <-
+    state = s2
+  -> State: 8.20 <-
+    state = s4
+  -> State: 8.21 <-
+    state = s5
